@@ -1,8 +1,11 @@
-const path = require('path');
 const express = require('express');
+const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
 const app = express();
+
+// Database
+const db = require('./db');
 
 // Middleware
 app.use(express.json());
