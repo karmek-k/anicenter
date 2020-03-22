@@ -13,4 +13,7 @@ app.use('/static',
   express.static(process.env.STATIC_PATH || 'static')
 );
 
+// Routes
+app.use('/users', require('./routes/users'));
+
 module.exports = app;
