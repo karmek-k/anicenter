@@ -9,7 +9,7 @@ const User = require('../models/User');
 const userValidator = require('../validators/user');
 
 // GET all users
-router.get('/', (req, res) => {
+router.get('/list', (req, res) => {
   User.findAll({
     attributes: { exclude: ['password'] }
   })
@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
 });
 
 // GET one user by id
-router.get('/:id', (req, res) => {
+router.get('/retrieve/:id', (req, res) => {
   User.findByPk(req.params.id, {
     attributes: { exclude: ['password'] }
   })
