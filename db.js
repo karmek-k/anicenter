@@ -1,8 +1,8 @@
 const { Sequelize } = require('sequelize');
 
-const logging = Boolean(Number(process.env.SEQUELIZE_LOGGING));
+const sequelizeLogging = Boolean(Number(process.env.SEQUELIZE_LOGGING));
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  logging
+  logging: sequelizeLogging ? console.log : false
 });
 sequelize.authenticate()
   .then(() => console.log('Successfully connected to the database'))
