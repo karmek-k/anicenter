@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
 
 const router = require('express').Router();
 
@@ -148,5 +149,13 @@ router.post('/login', (req, res) => {
     })
     .catch(err => res.status(400).json(err));
 });
+
+router.patch(
+  '/', 
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    res.json({ msg: 'Test private route' });
+  }
+);
 
 module.exports = router;

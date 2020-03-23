@@ -14,6 +14,9 @@ app.use('/static',
 );
 app.use(passport.initialize());
 
+// Passport config
+require('./config/passport')(passport);
+
 // Routes
 app.use('/users', require('./routes/users'));
 
