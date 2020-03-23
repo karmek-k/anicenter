@@ -55,43 +55,67 @@ router.post('/register', userValidator, (req, res) => {
 });
 
 // PUT a user
-router.put('/update/:id', (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  }
-
-  const userData = {
-    password: req.body.password
-  };
-
-  bcrypt.hash(userData.password, 12, (err, hash) => {
-    if (err) {
-      throw err;
+router.put(
+  '/update/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    if (req.user.get('id') != req.params.id) {
+      return res.status(401).json({
+        updated: false,
+        msg: 'Operation not allowed'
+      });
     }
-    
-    userData.password = hash;
-    
-    User.update(userData, {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    const userData = {
+      password: req.body.password
+    };
+
+    bcrypt.hash(userData.password, 12, (err, hash) => {
+      if (err) {
+        throw err;
+      }
+      
+      userData.password = hash;
+      
+      User.update(userData, {
+        where: {
+          id: req.params.id
+        }
+      })
+        .then(updated => res.json({ updated: Boolean(updated) }))
+        .catch(err => res.status(400).json(err));
+    });
+  }
+);
+
+
+// DELETE a user
+router.delete(
+  '/delete/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    console.log(req.user.get('id'));
+    if (req.user.get('id') != req.params.id) {
+      return res.status(401).json({
+        deleted: false,
+        msg: 'Operation not allowed'
+      });
+    }
+
+    User.destroy({
       where: {
         id: req.params.id
       }
     })
-      .then(user => res.json(user))
+      .then(deleted => res.json({ deleted: Boolean(deleted) }))
       .catch(err => res.status(400).json(err));
-  });
-});
-
-// DELETE a user
-router.delete('/delete/:id', (req, res) => {
-  User.destroy({
-    where: {
-      id: req.params.id
-    }
-  })
-    .then(result => res.json(result))
-    .catch(err => res.status(400).json(err));
-});
+  }
+);
 
 router.post('/login', (req, res) => {
   const userData = {
@@ -149,13 +173,5 @@ router.post('/login', (req, res) => {
     })
     .catch(err => res.status(400).json(err));
 });
-
-router.patch(
-  '/', 
-  passport.authenticate('jwt', { session: false }),
-  (req, res) => {
-    res.json({ msg: 'Test private route' });
-  }
-);
 
 module.exports = router;
