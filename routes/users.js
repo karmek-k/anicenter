@@ -8,7 +8,9 @@ const userValidator = require('../validators/user');
 
 // GET all users
 router.get('/', (req, res) => {
-  User.findAll()
+  User.findAll({
+    attributes: { exclude: ['password'] }
+  })
     .then(users => res.json(users))
     .catch(err => res.status(400).json(err));
 });
