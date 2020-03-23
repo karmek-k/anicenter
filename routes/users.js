@@ -26,7 +26,7 @@ router.post('/register', userValidator, (req, res) => {
   const userData = {
     username: req.body.username,
     password: req.body.password
-  }
+  };
 
   // Create a hashed password
   bcrypt.hash(userData.password, 12, (err, hash) => {
@@ -41,6 +41,17 @@ router.post('/register', userValidator, (req, res) => {
 
     res.json(userData);
   });
+});
+
+// DELETE a user
+router.delete('/delete/:id', (req, res) => {
+  User.destroy({
+    where: {
+      id: req.params.id
+    }
+  })
+    .then(result => res.json(result))
+    .catch(err => res.status(400).json(err));
 });
 
 module.exports = router;
