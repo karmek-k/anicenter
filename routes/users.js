@@ -15,6 +15,15 @@ router.get('/', (req, res) => {
     .catch(err => res.status(400).json(err));
 });
 
+// GET one user by id
+router.get('/:id', (req, res) => {
+  User.findByPk(req.params.id, {
+    attributes: { exclude: ['password'] }
+  })
+    .then(user => res.json(user))
+    .catch(err => res.status(404).json(err));
+});
+
 // POST a user
 router.post('/register', userValidator, (req, res) => {
   // Check for validation errors
@@ -40,6 +49,34 @@ router.post('/register', userValidator, (req, res) => {
     User.create(userData);
 
     res.json(userData);
+  });
+});
+
+// PUT a user
+router.put('/update/:id', (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
+  const userData = {
+    password: req.body.password
+  };
+
+  bcrypt.hash(userData.password, 12, (err, hash) => {
+    if (err) {
+      throw err;
+    }
+    
+    userData.password = hash;
+    
+    User.update(userData, {
+      where: {
+        id: req.params.id
+      }
+    })
+      .then(user => res.json(user))
+      .catch(err => res.status(400).json(err));
   });
 });
 
