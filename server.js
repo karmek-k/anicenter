@@ -1,5 +1,5 @@
 const express = require('express');
-const { Sequelize } = require('sequelize');
+const passport = require('passport');
 require('dotenv').config();
 
 const app = express();
@@ -12,6 +12,7 @@ app.use(express.json());
 app.use('/static',
   express.static(process.env.STATIC_PATH || 'static')
 );
+app.use(passport.initialize());
 
 // Routes
 app.use('/users', require('./routes/users'));

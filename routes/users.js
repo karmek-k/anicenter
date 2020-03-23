@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const router = require('express').Router();
 
@@ -88,6 +89,63 @@ router.delete('/delete/:id', (req, res) => {
     }
   })
     .then(result => res.json(result))
+    .catch(err => res.status(400).json(err));
+});
+
+router.post('/login', (req, res) => {
+  const userData = {
+    username: req.body.username,
+    password: req.body.password
+  };
+
+  User.findOne({ 
+    where: {
+      username: userData.username
+    }
+  })
+    .then(user => {
+      if (!user) {
+        return res.status(404).json({ msg: 'User not found' });
+      }
+
+      // Compare passwords
+      bcrypt.compare(
+        userData.password,
+        user.get('password'),
+        (err, same) => {
+          if (err) {
+            throw err;
+          }
+
+          if (same) {
+            // Sign the token
+            const payload = {
+              username: userData.username
+            };
+            jwt.sign(
+              payload,
+              process.env.SECRET_KEY,
+              { expiresIn: '6h' },
+              (err, token) => {
+                if (err) {
+                  throw err;
+                }
+
+                res.json({
+                  token: 'Bearer ' + token
+                });
+              }
+            );
+          }
+          // wrong password
+          else {
+            return res.status(401).json({
+              token: null,
+              msg: 'Wrong credentials'
+            });
+          }
+      });
+    })
     .catch(err => res.status(400).json(err));
 });
 
