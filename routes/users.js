@@ -117,6 +117,7 @@ router.delete(
   }
 );
 
+// Obtain a JWT
 router.post('/login', (req, res) => {
   const userData = {
     username: req.body.username,
