@@ -59,7 +59,7 @@ router.put(
   '/update/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    if (req.user.get('id') != req.params.id) {
+    if (req.user.get('id') !== Number(req.params.id)) {
       return res.status(401).json({
         updated: false,
         msg: 'Operation not allowed'
@@ -100,7 +100,7 @@ router.delete(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     console.log(req.user.get('id'));
-    if (req.user.get('id') != req.params.id) {
+    if (req.user.get('id') !== Number(req.params.id)) {
       return res.status(401).json({
         deleted: false,
         msg: 'Operation not allowed'
