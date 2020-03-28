@@ -2,19 +2,22 @@ const { DataTypes } = require('sequelize');
 
 const db = require('../db');
 
-const User = db.define('User', {
-  username: {
+const File = db.define('File', {
+  filename: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true
   },
-  password: {
+  title: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT
   }
 }, {
   timestamps: true
 });
-User.sync();
+File.sync();
 
-module.exports = User;
+module.exports = File;
