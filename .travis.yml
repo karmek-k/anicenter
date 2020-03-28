@@ -2,7 +2,8 @@ language: node_js
 node_js:
   - "node"
 before_script:
-  - yarn global add -D jest supertest
+  - yarn global add -D jest supertest eslint
 script:
   - yarn run test
+  - npx eslint ./*.js
 cache: yarn
