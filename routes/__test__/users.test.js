@@ -1,10 +1,21 @@
-const request = require('supertest');
-
 const app = require('../../server');
 
+const request = require('supertest')(app);
+const jwt = require('jsonwebtoken');
+
+const { User } = require('../../models/models');
+
 describe('User register tests', () => {
+  beforeAll(() => {
+    User.sync();
+  });
+
+  afterEach(() => {
+    User.drop();
+  });
+
   it('should create a new user with valid data', done => {
-    request(app)
+    request
       .post('/users/register')
       .send({ username: 'kicia', password: 'miaumiau' })
       //.set('Accept', 'application/json')
@@ -19,7 +30,7 @@ describe('User register tests', () => {
   });
 
   it('should fail when creating a user with invalid data', done => {
-    request(app)
+    request
       .post('/users/register')
       .send({ username: 'd', password: '' })
       .expect(422)
@@ -35,8 +46,27 @@ describe('User register tests', () => {
 });
 
 describe('User fetch tests', () => {
+  beforeEach(() => {
+    User.sync();
+
+    // Create fake user accounts
+    User.create({
+      username: 'kicia',
+      password: 'miaumiau'
+    });
+
+    User.create({
+      username: 'mia',
+      password: 'hauhau'
+    });
+  });
+
+  afterEach(() => {
+    User.drop();
+  });
+
   it('should list all users', done => {
-    request(app)
+    request
       .get('/users/list')
       .expect(200)
       .end((err, res) => {
@@ -53,14 +83,92 @@ describe('User fetch tests', () => {
   });
 
   it('should not list users\' passwords', done => {
-    request(app)
+    request
       .get('/users/list')
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
 
-        expect(res.body[0]).toEqual(expect.not.objectContaining({ password: expect.any(String) }));
+        expect(res.body[0]).toEqual(
+          expect.not.objectContaining({ password: expect.any(String) })
+        );
+        done();
+      })
+  });
+
+  it('should get info about one user', done => {
+    request
+      .get('/users/retrieve/1')
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+
+        expect(res.body.id).toBe(1);
+        expect(res.body.username).toBe('kicia');
+        expect(res.body.username).not.toBe('mia');
         done();
       })
   });
 });
+
+describe('User update tests', () => {
+  let kiciaJwt;
+
+  beforeAll(() => {
+    // Sign a JWT
+    kiciaJwt = jwt.sign({ username: 'kicia' }, process.env.SECRET_KEY);
+    kiciaJwt = kiciaJwt.trim();
+  });
+
+  beforeEach(() => {
+    User.sync();
+
+    // Create fake user accounts
+    User.create({
+      username: 'kicia',
+      password: 'miaumiau'
+    });
+
+    User.create({
+      username: 'mia',
+      password: 'hauhau'
+    });
+  });
+
+  afterEach(() => {
+    User.drop();
+  });
+
+  it('should update user data', done => {
+    request
+      .put('/users/update/1')
+      .send({ username: 'stefan', password: 'miaumiau' })
+      .set('Authorization', 'Bearer ' + kiciaJwt)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+
+        expect(res.body.updated).toBeTruthy();
+        done();
+      });
+  });
+
+  it('should not allow editing other users\' data', done => {
+    request
+      .put('/users/update/2')
+      .send({ username: 'mia', password: 'hauhau' })
+      .set('Authorization', 'Bearer ' + kiciaJwt)
+      .expect(401)
+      .end((err, res) => {
+        if (err) return done(err);
+
+        expect(res.body.updated).toBeFalsy();
+        done();
+      });
+  });
+});
+
+// TODO:
+// PUT, DELETE
+// Admin user
+// Obtaining a JWT
