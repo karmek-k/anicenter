@@ -50,7 +50,7 @@ router.post('/register', userValidator, (req, res) => {
     // Save the user to the db
     User.create(userData);
 
-    res.json(userData);
+    res.status(201).json(userData);
   });
 });
 
