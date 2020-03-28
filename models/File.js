@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 
 const db = require('../db');
 
-const File = db.define('File', {
+const File = db.define('file', {
   filename: {
     type: DataTypes.STRING,
     allowNull: false,
