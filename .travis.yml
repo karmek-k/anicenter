@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "node"
+env:
+  - SECRET_KEY=secret
+  - NODE_ENV=test
+before_script:
+  - yarn global add -D jest supertest
+script:
+  - yarn run test
+cache: yarn
