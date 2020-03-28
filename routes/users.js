@@ -11,19 +11,19 @@ const userValidator = require('../validators/user');
 // GET all users
 router.get('/list', (req, res) => {
   User.findAll({
-    attributes: { exclude: ['password'] }
+    attributes: { exclude: ['password', 'isAdmin'] }
   })
     .then(users => res.json(users))
     .catch(err => res.status(400).json(err));
 });
 
-// GET one user by id
+// GET one user
 router.get('/retrieve/:id', (req, res) => {
   User.findByPk(req.params.id, {
     attributes: { exclude: ['password'] }
   })
     .then(user => res.json(user))
-    .catch(err => res.status(404).json(err));
+    .catch(() => res.status(400).json({ msg: 'Something went wrong...' }));
 });
 
 // POST a user
@@ -59,7 +59,10 @@ router.put(
   '/update/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    if (req.user.get('id') !== Number(req.params.id)) {
+    // display an error message
+    // when a user tries to update someone else's account
+    // while not being an admin
+    if (req.user.get('id') !== Number(req.params.id) && !req.user.get('isAdmin')) {
       return res.status(401).json({
         updated: false,
         msg: 'Operation not allowed'
@@ -99,8 +102,7 @@ router.delete(
   '/delete/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    console.log(req.user.get('id'));
-    if (req.user.get('id') !== Number(req.params.id)) {
+    if (req.user.get('id') !== Number(req.params.id) || !req.user.get('isAdmin')) {
       return res.status(401).json({
         deleted: false,
         msg: 'Operation not allowed'

@@ -103,6 +103,7 @@ describe('User fetch tests', () => {
       .end((err, res) => {
         if (err) return done(err);
 
+        expect(res.body.name).toBeFalsy();
         expect(res.body.id).toBe(1);
         expect(res.body.username).toBe('kicia');
         expect(res.body.username).not.toBe('mia');
@@ -112,12 +113,12 @@ describe('User fetch tests', () => {
 });
 
 describe('User update tests', () => {
-  let kiciaJwt;
+  let kiciaJwt, miaJwt;
 
   beforeAll(() => {
     // Sign a JWT
-    kiciaJwt = jwt.sign({ username: 'kicia' }, process.env.SECRET_KEY);
-    kiciaJwt = kiciaJwt.trim();
+    kiciaJwt = jwt.sign({ username: 'kicia' }, process.env.SECRET_KEY).trim();
+    miaJwt = jwt.sign({ username: 'mia' }, process.env.SECRET_KEY).trim();
   });
 
   beforeEach(() => {
@@ -131,7 +132,8 @@ describe('User update tests', () => {
 
     User.create({
       username: 'mia',
-      password: 'hauhau'
+      password: 'hauhau',
+      isAdmin: true
     });
   });
 
@@ -166,9 +168,36 @@ describe('User update tests', () => {
         done();
       });
   });
+
+  it('should allow admins to edit any account', done => {
+    request
+      .put('/users/update/1')
+      .send({ username: 'stefan', password: '12345' })
+      .set('Authorization', 'Bearer ' + miaJwt)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+
+        expect(res.body.updated).toBeTruthy();
+        done();
+      });
+  });
+
+  it('should allow admins to edit their own accounts', done => {
+    request
+      .put('/users/update/2')
+      .send({ username: 'stefan', password: '12345' })
+      .set('Authorization', 'Bearer ' + miaJwt)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+
+        expect(res.body.updated).toBeTruthy();
+        done();
+      });
+  })
 });
 
 // TODO:
-// PUT, DELETE
-// Admin user
+// DELETE
 // Obtaining a JWT
