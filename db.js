@@ -1,7 +1,17 @@
 const { Sequelize } = require('sequelize');
 
-const sequelizeLogging = Boolean(Number(process.env.SEQUELIZE_LOGGING));
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
+// use an in-memory database for testing
+let databaseUrl, sequelizeLogging;
+if (process.env.NODE_ENV.toLowerCase() === 'test') {
+  databaseUrl = 'sqlite::memory:';
+  sequelizeLogging = false
+}
+else {
+  databaseUrl = process.env.DATABASE_URL;
+  sequelizeLogging = Boolean(Number(process.env.SEQUELIZE_LOGGING));
+}
+
+const sequelize = new Sequelize(databaseUrl, {
   logging: sequelizeLogging ? console.log : false
 });
 sequelize.authenticate()
