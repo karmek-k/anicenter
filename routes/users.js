@@ -102,7 +102,7 @@ router.delete(
   '/delete/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    if (req.user.get('id') !== Number(req.params.id) || !req.user.get('isAdmin')) {
+    if (req.user.get('id') !== Number(req.params.id) && !req.user.get('isAdmin')) {
       return res.status(401).json({
         deleted: false,
         msg: 'Operation not allowed'

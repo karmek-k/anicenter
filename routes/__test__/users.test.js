@@ -195,9 +195,94 @@ describe('User update tests', () => {
         expect(res.body.updated).toBeTruthy();
         done();
       });
-  })
+  });
+});
+
+describe('User delete tests', () => {
+  let kiciaJwt, miaJwt;
+
+  beforeAll(() => {
+    // Sign a JWT
+    kiciaJwt = jwt.sign({ username: 'kicia' }, process.env.SECRET_KEY).trim();
+    miaJwt = jwt.sign({ username: 'mia' }, process.env.SECRET_KEY).trim();
+  });
+
+  beforeEach(() => {
+    User.sync();
+
+    // Create fake user accounts
+    User.create({
+      username: 'kicia',
+      password: 'miaumiau'
+    });
+
+    User.create({
+      username: 'mia',
+      password: 'hauhau',
+      isAdmin: true
+    });
+  });
+
+  afterEach(() => {
+    User.drop();
+  });
+
+  it('should allow a user to delete their own account', done => {
+    request
+      .delete('/users/delete/1')
+      .send({ username: 'kicia', password: 'miaumiau' })
+      .set('Authorization', 'Bearer ' + kiciaJwt)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+
+        expect(res.body.deleted).toBeTruthy();
+        done();
+      });
+  });
+
+  it('should not allow deleting other users\' accounts', done => {
+    request
+      .delete('/users/delete/2')
+      .send({ username: 'kicia', password: 'miaumiau' })
+      .set('Authorization', 'Bearer ' + kiciaJwt)
+      .expect(401)
+      .end((err, res) => {
+        if (err) return done(err);
+
+        expect(res.body.deleted).toBeFalsy();
+        done();
+      });
+  });
+
+  it('should allow admins to delete any account', done => {
+    request
+      .delete('/users/delete/1')
+      .send({ username: 'mia', password: 'hauhau' })
+      .set('Authorization', 'Bearer ' + miaJwt)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+
+        expect(res.body.deleted).toBeTruthy();
+        done();
+      });
+  });
+
+  it('should allow admins to delete their own accounts', done => {
+    request
+      .delete('/users/delete/2')
+      .send({ username: 'mia', password: 'hauhau' })
+      .set('Authorization', 'Bearer ' + miaJwt)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+
+        expect(res.body.deleted).toBeTruthy();
+        done();
+      });
+  });
 });
 
 // TODO:
-// DELETE
 // Obtaining a JWT
