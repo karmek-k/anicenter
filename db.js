@@ -4,7 +4,7 @@ const { Sequelize } = require('sequelize');
 let databaseUrl, sequelizeLogging;
 if (process.env.NODE_ENV.toLowerCase() === 'test') {
   databaseUrl = 'sqlite::memory:';
-  sequelizeLogging = false
+  sequelizeLogging = false;
 }
 else {
   databaseUrl = process.env.DATABASE_URL;
