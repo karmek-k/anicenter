@@ -18,6 +18,5 @@ const File = db.define('File', {
 }, {
   timestamps: true
 });
-File.sync();
 
 module.exports = File;
