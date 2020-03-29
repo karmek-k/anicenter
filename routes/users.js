@@ -53,9 +53,9 @@ router.post('/register', userValidator, (req, res) => {
     userData.password = hash;
 
     // Save the user to the db
-    User.create(userData);
-
-    res.status(201).json(userData);
+    User.create(userData)
+      .then(user => res.status(201).json({ id: user.id, username: user.username }))
+      .catch(() => res.status(400).json({ msg: 'Can\'t create user' }));
   });
 });
 
