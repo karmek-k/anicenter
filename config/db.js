@@ -15,7 +15,11 @@ const sequelize = new Sequelize(databaseUrl, {
   logging: sequelizeLogging ? console.log : false
 });
 sequelize.authenticate()
-  .then(() => console.log('Successfully connected to the database'))
+  .then(() => {
+    if (sequelizeLogging) {
+      console.log('Successfully connected to the database')
+    }
+  })
   .catch(err => console.error(err));
 
 module.exports = sequelize;
