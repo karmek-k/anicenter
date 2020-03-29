@@ -12,7 +12,7 @@ require('dotenv').config();
 const app = express();
 
 // Database
-require('./db');
+require('./config/db');
 
 // Middleware
 app.use(cookieParser());
