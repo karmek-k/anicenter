@@ -108,3 +108,6 @@ static/
 
 # SQLite database
 anicenter.db
+
+# Uploads
+uploads/
