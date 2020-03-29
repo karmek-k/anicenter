@@ -148,7 +148,8 @@ router.post('/login', (req, res) => {
           if (same) {
             // Sign the token
             const payload = {
-              username: userData.username
+              username: userData.username,
+              userId: user.id
             };
             jwt.sign(
               payload,
