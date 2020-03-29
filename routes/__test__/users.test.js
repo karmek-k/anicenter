@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const { User } = require('../../models/models');
 
 describe('User register tests', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     User.sync();
   });
 
@@ -41,7 +41,15 @@ describe('User register tests', () => {
           errors: expect.any(Array)
         });
         done();
-      })
+      });
+  });
+
+  it('should not allow to register an admin account', done => {
+    request
+      .post('/users/register')
+      .send({ username: 'kicia', password: 'miaumiau', isAdmin: true })
+      .expect(403)
+      .end(done);
   });
 });
 

@@ -28,6 +28,11 @@ router.get('/retrieve/:id', (req, res) => {
 
 // POST a user
 router.post('/register', userValidator, (req, res) => {
+  // Check for malicious intents
+  if (req.body.isAdmin) {
+    return res.status(403).json({ msg: 'Why would you try to do that?' });
+  }
+
   // Check for validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
